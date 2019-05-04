@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z $1 ]
+then
+  echo $0: error: needs a command to bench 1>&2
+  exit 1
+else
+  bin="bin/$1"
+fi
+
+# java performance fairness hack (to avoid loading an extra bash script)
+# (not like java is going to win startup performance awards, but...)
+if [ "$bin" == "bin/hello-java" ]
+then
+  bin='java -cp "'"$(pwd)"'/obj" Hello'
+elif [ ! -e "$bin" ]
+then
+  echo $0: error: the file "'${bin}'" does not exist 1>&2
+  exit 1
+fi
+
+if [ -z $2 ]
+then
+  times=20
+else
+  times=$2
+fi
+
+command="for i in {1..$times}
+do
+  $bin
+done"
+
+time bash -c "$command"
